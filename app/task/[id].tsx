@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, MapPin, Wrench, Phone, Camera, CircleCheck as CheckCircle, Clock } from 'lucide-react-native';
+import { ArrowLeft, MapPin, Wrench, Phone, Camera, CircleCheck as CheckCircle, Clock, MapPin as MapTrack } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { Colors, StatusLabels, StatusColors, StatusButtonLabels, NextStatus, type Task } from '@/lib/theme';
+import { locationTracker, type LocationCoordinate } from '@/lib/location';
+import { TrackMap } from '@/components/TrackMap';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -11,6 +13,8 @@ export default function TaskDetailScreen() {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [trackLocations, setTrackLocations] = useState<LocationCoordinate[]>([]);
+  const [isTracking, setIsTracking] = useState(false);
 
   const fetchTask = useCallback(async () => {
     const { data, error } = await supabase
@@ -25,14 +29,46 @@ export default function TaskDetailScreen() {
     setLoading(false);
   }, [id]);
 
+  const loadTrack = useCallback(async () => {
+    if (!id) return;
+    const locations = await locationTracker.getTaskTrack(id);
+    setTrackLocations(locations);
+  }, [id]);
+
   useEffect(() => {
     fetchTask();
-  }, [fetchTask]);
+    loadTrack();
+  }, [fetchTask, loadTrack]);
+
+  const startTracking = async () => {
+    if (!id || !task) return;
+    const success = await locationTracker.startTracking(id);
+    if (success) {
+      setIsTracking(true);
+    }
+  };
+
+  const stopTracking = async () => {
+    const locations = await locationTracker.stopTracking();
+    setTrackLocations(locations);
+    setIsTracking(false);
+    await loadTrack();
+  };
 
   const advanceStatus = async () => {
     if (!task) return;
     const nextStatus = NextStatus[task.status];
     if (!nextStatus) return;
+
+    // Start tracking when leaving ('en_route')
+    if (task.status === 'accepted' && nextStatus === 'en_route') {
+      await startTracking();
+    }
+
+    // Stop tracking when finishing
+    if (task.status === 'in_progress' && nextStatus === 'done') {
+      await stopTracking();
+    }
 
     setUpdating(true);
     const { error } = await supabase
@@ -171,6 +207,24 @@ export default function TaskDetailScreen() {
             })}
           </View>
         </View>
+
+        {(task.status === 'en_route' || task.status === 'in_progress' || task.status === 'done') && (
+          <View style={styles.section}>
+            <View style={styles.trackingHeader}>
+              <Text style={styles.sectionTitle}>Маршрут</Text>
+              {isTracking && (
+                <View style={styles.trackingBadge}>
+                  <View style={styles.recordingDot} />
+                  <Text style={styles.recordingText}>Запись</Text>
+                </View>
+              )}
+            </View>
+            <TrackMap locations={trackLocations} />
+            <Text style={styles.trackingInfo}>
+              {trackLocations.length} точек отслеживания
+            </Text>
+          </View>
+        )}
 
         {task.photos && task.photos.length > 0 && (
           <View style={styles.section}>
@@ -385,5 +439,36 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  trackingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  trackingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: Colors.danger + '20',
+    borderRadius: 20,
+    gap: 6,
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.danger,
+  },
+  recordingText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.danger,
+  },
+  trackingInfo: {
+    fontSize: 13,
+    color: Colors.textMuted,
+    marginTop: 8,
   },
 });
