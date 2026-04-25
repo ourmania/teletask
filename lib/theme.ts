@@ -60,4 +60,7 @@ export type Task = {
   assigned_to: string | null;
   photos: string[];
   created_at: string;
+  in_progress_at: string | null;
+  completed_at: string | null;
+  duration_minutes: number | null;
 };

@@ -71,13 +71,35 @@ export default function TaskDetailScreen() {
     }
 
     setUpdating(true);
+
+    // Prepare update data with timestamps
+    const updateData: Record<string, any> = { status: nextStatus };
+
+    // Record when work starts
+    if (task.status === 'en_route' && nextStatus === 'in_progress') {
+      updateData.in_progress_at = new Date().toISOString();
+    }
+
+    // Calculate duration when work completes
+    if (task.status === 'in_progress' && nextStatus === 'done') {
+      const completedAt = new Date().toISOString();
+      updateData.completed_at = completedAt;
+
+      if (task.in_progress_at) {
+        const startTime = new Date(task.in_progress_at).getTime();
+        const endTime = new Date(completedAt).getTime();
+        const durationMinutes = Math.round((endTime - startTime) / 60000);
+        updateData.duration_minutes = durationMinutes;
+      }
+    }
+
     const { error } = await supabase
       .from('tasks')
-      .update({ status: nextStatus })
+      .update(updateData)
       .eq('id', task.id);
 
     if (!error) {
-      setTask({ ...task, status: nextStatus });
+      setTask({ ...task, status: nextStatus, ...updateData });
     }
     setUpdating(false);
   };
@@ -171,6 +193,22 @@ export default function TaskDetailScreen() {
                 </Text>
               </View>
             </View>
+            {task.duration_minutes !== null && (
+              <>
+                <View style={styles.divider} />
+                <View style={styles.infoRow}>
+                  <Clock size={20} color={Colors.statusDone} strokeWidth={2} />
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Время выполнения</Text>
+                    <Text style={styles.infoValue}>
+                      {task.duration_minutes < 60
+                        ? `${task.duration_minutes} мин`
+                        : `${Math.floor(task.duration_minutes / 60)} ч ${task.duration_minutes % 60} мин`}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </View>
 

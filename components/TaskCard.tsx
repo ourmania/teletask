@@ -1,10 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { MapPin, Wrench, Phone } from 'lucide-react-native';
+import { MapPin, Wrench, Phone, Clock } from 'lucide-react-native';
 import { Colors, StatusLabels, StatusColors, type Task } from '@/lib/theme';
 
 type TaskCardProps = {
   task: Task;
 };
+
+function formatDuration(minutes: number | null): string {
+  if (minutes === null) return '';
+  if (minutes < 60) return `${minutes} мин`;
+  return `${Math.floor(minutes / 60)}ч ${minutes % 60}мин`;
+}
 
 export function TaskCard({ task }: TaskCardProps) {
   const statusColor = StatusColors[task.status] || Colors.textMuted;
@@ -17,7 +23,15 @@ export function TaskCard({ task }: TaskCardProps) {
           <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
         </View>
-        <Text style={styles.workType}>{task.task_type}</Text>
+        <View style={styles.rightContent}>
+          {task.duration_minutes !== null && (
+            <View style={styles.durationBadge}>
+              <Clock size={12} color={Colors.statusDone} strokeWidth={2} />
+              <Text style={styles.durationText}>{formatDuration(task.duration_minutes)}</Text>
+            </View>
+          )}
+          <Text style={styles.workType}>{task.task_type}</Text>
+        </View>
       </View>
 
       <View style={styles.infoSection}>
@@ -47,7 +61,7 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
   },
   statusBadge: {
@@ -67,10 +81,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  rightContent: {
+    flex: 1,
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   workType: {
     fontSize: 14,
     fontWeight: '600',
     color: Colors.textPrimary,
+  },
+  durationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: Colors.statusDone + '15',
+    borderRadius: 10,
+    gap: 4,
+  },
+  durationText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.statusDone,
   },
   infoSection: {
     gap: 8,
