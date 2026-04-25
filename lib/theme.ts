@@ -63,4 +63,12 @@ export type Task = {
   in_progress_at: string | null;
   completed_at: string | null;
   duration_minutes: number | null;
+  installers?: { name: string; phone: string } | null;
+};
+
+export type Installer = {
+  id: string;
+  name: string;
+  phone: string;
+  created_at: string;
 };

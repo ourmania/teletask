@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Hop as Home, Settings } from 'lucide-react-native';
+import { Hop as Home, Settings, LayoutDashboard } from 'lucide-react-native';
 import { Colors } from '@/lib/theme';
 
 export default function TabLayout() {
@@ -21,6 +21,15 @@ export default function TabLayout() {
           title: 'Задачи',
           tabBarIcon: ({ size, color }) => (
             <Home size={size} color={color} strokeWidth={2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Диспетчерская',
+          tabBarIcon: ({ size, color }) => (
+            <LayoutDashboard size={size} color={color} strokeWidth={2} />
           ),
         }}
       />
