@@ -1,14 +1,33 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { LayoutDashboard, ChevronRight } from 'lucide-react-native';
 import { Colors } from '@/lib/theme';
 
 export default function SettingsScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Настройки</Text>
       </View>
+
       <View style={styles.content}>
-        <Text style={styles.placeholder}>Раздел настроек</Text>
+        <TouchableOpacity
+          style={styles.adminCard}
+          onPress={() => router.push('/admin')}
+          activeOpacity={0.7}>
+          <View style={styles.adminCardLeft}>
+            <View style={styles.adminIcon}>
+              <LayoutDashboard size={22} color={Colors.accent} strokeWidth={2} />
+            </View>
+            <View>
+              <Text style={styles.adminTitle}>Диспетчерская</Text>
+              <Text style={styles.adminSubtitle}>Панель управления задачами</Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color={Colors.textMuted} strokeWidth={2} />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -31,12 +50,39 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  placeholder: {
+  adminCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    padding: 16,
+  },
+  adminCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  adminIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: Colors.accent + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adminTitle: {
     fontSize: 16,
-    color: Colors.textMuted,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  adminSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
 });
