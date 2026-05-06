@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (import.meta as any).env.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = (import.meta as any).env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+let supabaseUrl: string | undefined;
+let supabaseAnonKey: string | undefined;
+
+if (typeof process !== 'undefined' && process.env) {
+  supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
