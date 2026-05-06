@@ -32,13 +32,9 @@
     "extra": {
       "eas": {
         "projectId": "your-project-id-here"
-      }
-    },
-    "env": {
-      "production": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://edhcmlyfjcqtmzzmzmbd.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkaGNtbHlmamNxdG16em16bWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTQ5NzAsImV4cCI6MjA5MjU5MDk3MH0.Og4Ib_Lw4IunuZSZNPbkh3ojeLebeFeRDZi8EIBWlz0"
-      }
+      },
+      "supabaseUrl": "https://edhcmlyfjcqtmzzmzmbd.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkaGNtbHlmamNxdG16em16bWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTQ5NzAsImV4cCI6MjA5MjU5MDk3MH0.Og4Ib_Lw4IunuZSZNPbkh3ojeLebeFeRDZi8EIBWlz0"
     }
   }
 }
